@@ -17,12 +17,12 @@
       "image": "https://storage.googleapis.com/golden-wind/bootcamp-gostack/desafio-food/food3.png"
     },
     {
-      "image": "tet",
-      "name": "tetetet",
-      "price": "19.90",
-      "description": "wadawdawd",
+      "id": 2,
+      "name": "Veggie",
+      "description": "Macarrão com pimentao, ervilha e ervas finas colhidas no himalaia.",
+      "price": "21.90",
       "available": true,
-      "id": 4
+      "image": "https://storage.googleapis.com/golden-wind/bootcamp-gostack/desafio-food/food2.png"
     }
   ]
 }
