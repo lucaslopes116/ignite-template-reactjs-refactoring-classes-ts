@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import {  useEffect, useState } from 'react';
 
 import Header from '../../components/Header';
 import api from '../../services/api';
@@ -7,25 +7,24 @@ import ModalAddFood from '../../components/ModalAddFood';
 import ModalEditFood from '../../components/ModalEditFood';
 import { FoodsContainer } from './styles';
 
-class Dashboard extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      foods: [],
-      editingFood: {},
-      modalOpen: false,
-      editModalOpen: false,
+function Dashboard() {
+  const [foods, setFoods] = useState([])
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingFood, setEditingFood] = useState({})
+
+  useEffect(()=>{
+    async function initialData(){
+      const response = await api.get('/foods');
+
+      setFoods(response.data);
     }
-  }
 
-  async componentDidMount() {
-    const response = await api.get('/foods');
+    initialData()
+    
+  },[])
 
-    this.setState({ foods: response.data });
-  }
-
-  handleAddFood = async food => {
-    const { foods } = this.state;
+  async function handleAddFood(food)  {
 
     try {
       const response = await api.post('/foods', {
@@ -33,14 +32,13 @@ class Dashboard extends Component {
         available: true,
       });
 
-      this.setState({ foods: [...foods, response.data] });
+      setFoods([...foods, response.data]);
     } catch (err) {
       console.log(err);
     }
   }
 
-  handleUpdateFood = async food => {
-    const { foods, editingFood } = this.state;
+  async function handleUpdateFood(food)  {
 
     try {
       const foodUpdated = await api.put(
@@ -52,54 +50,46 @@ class Dashboard extends Component {
         f.id !== foodUpdated.data.id ? f : foodUpdated.data,
       );
 
-      this.setState({ foods: foodsUpdated });
+      setFoods(foodsUpdated);
     } catch (err) {
       console.log(err);
     }
   }
 
-  handleDeleteFood = async id => {
-    const { foods } = this.state;
+  async function handleDeleteFood(id)  {
 
     await api.delete(`/foods/${id}`);
 
     const foodsFiltered = foods.filter(food => food.id !== id);
 
-    this.setState({ foods: foodsFiltered });
+    setFoods(foodsFiltered);
   }
 
-  toggleModal = () => {
-    const { modalOpen } = this.state;
-
-    this.setState({ modalOpen: !modalOpen });
+  function toggleModal()  {
+    setModalOpen( !modalOpen );
   }
 
-  toggleEditModal = () => {
-    const { editModalOpen } = this.state;
-
-    this.setState({ editModalOpen: !editModalOpen });
+  function toggleEditModal()  {
+    setEditModalOpen(!editModalOpen);
   }
 
-  handleEditFood = food => {
-    this.setState({ editingFood: food, editModalOpen: true });
+  function handleEditFood(food) {
+    setEditingFood({ editingFood: food, editModalOpen: true });
   }
-
-  render() {
-    const { modalOpen, editModalOpen, editingFood, foods } = this.state;
 
     return (
       <>
-        <Header openModal={this.toggleModal} />
+        <Header openModal={toggleModal} />
         <ModalAddFood
           isOpen={modalOpen}
-          setIsOpen={this.toggleModal}
-          handleAddFood={this.handleAddFood}
+          setIsOpen={toggleModal}
+          handleAddFood={handleAddFood}
         />
         <ModalEditFood
           isOpen={editModalOpen}
-          setIsOpen={this.toggleEditModal}
+          setIsOpen={toggleEditModal}
           editingFood={editingFood}
-          handleUpdateFood={this.handleUpdateFood}
+          handleUpdateFood={handleUpdateFood}
         />
 
         <FoodsContainer data-testid="foods-list">
@@ -108,14 +98,14 @@ class Dashboard extends Component {
               <Food
                 key={food.id}
                 food={food}
-                handleDelete={this.handleDeleteFood}
-                handleEditFood={this.handleEditFood}
+                handleDelete={handleDeleteFood}
+                handleEditFood={handleEditFood}
               />
             ))}
         </FoodsContainer>
       </>
     );
-  }
+  
 };
 
 export default Dashboard;
